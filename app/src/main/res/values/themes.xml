@@ -1,0 +1,17 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.FamilySafetyApp" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/accent_cyan</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+    </style>
+
+    <!-- Fullscreen Emergency SOS Theme -->
+    <style name="Theme.FamilySafetyApp.Fullscreen" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowBackground">@color/accent_red_dark</item>
+        <item name="android:statusBarColor">@color/accent_red_dark</item>
+        <item name="android:navigationBarColor">@color/accent_red_dark</item>
+    </style>
+</resources>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">AegisSafe Pro</string>
+    <string name="title_dashboard">Family Safety Shield</string>
+    <string name="btn_sos">EMERGENCY SOS</string>
+    <string name="circle_name">Walker Family Circle</string>
+    <string name="circle_code">SAFE99</string>
+</resources>
