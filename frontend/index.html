@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AegisSafe | Family Safety, Always Within Reach</title>
+    <!-- OpenStreetMap / Leaflet (NO API KEY REQUIRED) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Device Frame Simulator / Standalone Mobile Container -->
+    <div class="mobile-wrapper">
+        <div class="mobile-phone">
+            
+            <!-- Mobile Top Status Bar -->
+            <div class="phone-status-bar">
+                <span class="status-time" id="statusClock">10:08</span>
+                <div class="status-notch"></div>
+                <div class="status-icons">
+                    <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="battery-medium" class="w-3.5 h-3.5 text-green"></i>
+                </div>
+            </div>
+
+            <!-- Screen 1: HOME TAB -->
+            <div id="screenHome" class="app-screen active">
+                <header class="app-header">
+                    <div class="brand-row">
+                        <div class="brand-badge">
+                            <i data-lucide="shield-check" class="brand-shield-icon"></i>
+                            <span class="brand-text">AegisSafe</span>
+                        </div>
+                        <button class="icon-btn" id="btnNotification" onclick="app.switchTab('alerts')" title="Alerts & Notifications">
+                            <i data-lucide="bell"></i>
+                            <span class="notification-badge hidden" id="alertBadge">0</span>
+                        </button>
+                    </div>
+
+                    <div class="dropdown-pill">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span>My Family</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                    </div>
+
+                    <div class="headline-box">
+                        <h2 class="main-headline">Everyone, connected.</h2>
+                        <div class="online-indicator-row">
+                            <span class="pulse-dot"></span>
+                            <span class="online-text" id="homeOnlineCount">3 members online</span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Mini Map Card Preview (Enlarged with neat top-right expand icon) -->
+                <div class="mini-map-card" id="miniMapContainer" onclick="app.switchTab('map')">
+                    <div id="miniMap"></div>
+                    <div class="mini-map-expand-btn" title="Expand Full Map">
+                        <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                    </div>
+                </div>
+
+                <!-- Prominent SOS Button with Shield Icon & Hold Progress Bar -->
+                <div class="home-sos-container">
+                    <div class="sos-progress-btn-wrapper">
+                        <button class="btn-home-sos" id="btnHomeSosTrigger">
+                            <div class="sos-fill-progress" id="homeSosProgress"></div>
+                            <i data-lucide="shield-alert" class="sos-btn-icon"></i>
+                            <span class="sos-btn-text">SOS</span>
+                        </button>
+                    </div>
+                    <span class="sos-caption" id="homeSosInstruction">Hold for 3 seconds</span>
+                </div>
+
+                <!-- Family Members List -->
+                <div class="family-section">
+                    <h3 class="section-title">Family members</h3>
+                    <div class="members-card-list" id="homeMembersList">
+                        <!-- Populated dynamically via app.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screen 2: MAP TAB -->
+            <div id="screenMap" class="app-screen">
+                <div class="map-viewport-wrapper">
+                    <!-- Fullscreen Leaflet Map -->
+                    <div id="fullMap"></div>
+
+                    <!-- Map Floating Header -->
+                    <div class="map-floating-header">
+                        <button class="map-pill-btn">
+                            <i data-lucide="users" class="w-4 h-4"></i>
+                            <span>My Family</span>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Map Controls (Center & Zoom) -->
+                    <div class="map-controls">
+                        <button class="map-ctrl-btn" id="btnCenterGps" title="Recenter GPS">
+                            <i data-lucide="crosshair"></i>
+                        </button>
+                        <div class="map-zoom-group">
+                            <button class="map-ctrl-btn" id="btnZoomIn">+</button>
+                            <button class="map-ctrl-btn" id="btnZoomOut">-</button>
+                        </div>
+                    </div>
+
+                    <!-- Sliding Bottom Member Info Sheet -->
+                    <div class="map-bottom-sheet" id="mapBottomSheet">
+                        <div class="sheet-drag-handle"></div>
+                        
+                        <div class="sheet-member-header">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150" class="sheet-avatar" id="sheetAvatar" alt="Avatar">
+                            <div class="sheet-member-info">
+                                <h4 id="sheetMemberName">Grandpa Joe</h4>
+                                <div class="sheet-status-row">
+                                    <span class="green-dot"></span>
+                                    <span id="sheetMemberStatus">At home</span>
+                                </div>
+                                <div class="sheet-freshness-row">
+                                    <i data-lucide="clock" class="w-3 h-3 text-muted"></i>
+                                    <span id="sheetFreshnessText">Updated just now</span>
+                                    <span class="dot-separator">•</span>
+                                    <i data-lucide="battery-medium" class="w-3 h-3 text-green"></i>
+                                    <span id="sheetBatteryPercent">65%</span>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-right" class="sheet-arrow"></i>
+                        </div>
+
+                        <!-- Safe Zone Pill -->
+                        <div class="safe-zone-pill">
+                            <div class="safe-zone-left">
+                                <i data-lucide="home" class="w-4 h-4"></i>
+                                <span>Home safe zone</span>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="sheet-actions-grid">
+                            <button class="btn-sheet btn-sheet-call" id="btnSheetCall">
+                                <i data-lucide="phone"></i>
+                                <span>Call</span>
+                            </button>
+                            <button class="btn-sheet btn-sheet-directions" id="btnSheetDirections">
+                                <i data-lucide="navigation"></i>
+                                <span>Directions</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screen 3: EMERGENCY SOS TAB / MODAL -->
+            <div id="screenSos" class="app-screen">
+                <header class="sos-header">
+                    <button class="btn-back" onclick="app.switchTab('home')">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                </header>
+
+                <div class="sos-content-area">
+                    <h2 class="sos-title">Emergency SOS</h2>
+                    <p class="sos-subtitle">Notify your family with your live location</p>
+
+                    <!-- Large Pulsing SOS Button with 3-Second Hold & Shield Icon -->
+                    <div class="big-sos-wrapper">
+                        <div class="sos-pulse-ring ring-1"></div>
+                        <div class="sos-pulse-ring ring-2"></div>
+                        <div class="sos-pulse-ring ring-3"></div>
+                        
+                        <button class="btn-giant-sos" id="btnGiantSos">
+                            <div class="giant-sos-fill-progress" id="giantSosProgress"></div>
+                            <i data-lucide="shield-alert" class="giant-sos-icon"></i>
+                            <span class="giant-sos-text">SOS</span>
+                        </button>
+                    </div>
+                    <span class="sos-instruction" id="sosInstructionText">Hold for 3 seconds</span>
+
+                    <!-- Delivery Status Banner (Hidden by default, shown upon trigger) -->
+                    <div class="sos-delivery-card hidden" id="sosDeliveryCard">
+                        <div class="delivery-status-header">
+                            <span class="pulse-dot"></span>
+                            <strong id="sosDeliveryStatusTitle">DISTRESS BEACON DISPATCHED</strong>
+                        </div>
+                        <p id="sosDeliverySubtitle">Delivered to 3 family members via Cloud &amp; SMS</p>
+                    </div>
+
+                    <!-- Current Location Card -->
+                    <div class="location-status-card">
+                        <div class="loc-card-icon">
+                            <i data-lucide="map-pin"></i>
+                        </div>
+                        <div class="loc-card-info">
+                            <span class="loc-card-label">Your current location</span>
+                            <strong class="loc-card-city" id="currentLocationText">Colombo Fort, Sri Lanka</strong>
+                            <div class="loc-card-gps">
+                                <span class="green-dot"></span>
+                                <span>GPS signal active (&plusmn;3.5m)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contacts List -->
+                    <div class="sos-contacts-section">
+                        <h4 class="sos-section-title">Emergency contacts</h4>
+                        <div class="sos-contacts-list" id="sosContactsList">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- "I Am Safe" Button -->
+                    <div class="safe-btn-container">
+                        <button class="btn-iam-safe" id="btnIamSafe">
+                            <i data-lucide="shield-check"></i>
+                            <span>I am safe</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screen 4: ALERTS TAB -->
+            <div id="screenAlerts" class="app-screen">
+                <header class="app-header">
+                    <div class="brand-row">
+                        <div class="brand-badge">
+                            <i data-lucide="bell" class="brand-shield-icon"></i>
+                            <span class="brand-text">Safety Alerts</span>
+                        </div>
+                        <button class="btn-clear-alerts" onclick="app.clearAlertsBadge()">Mark all read</button>
+                    </div>
+                    <p class="alerts-subtitle">Real-time incident &amp; geofence notifications</p>
+                </header>
+
+                <div class="alerts-list-container" id="alertsLogContainer">
+                    <!-- Populated from server audit logs -->
+                </div>
+            </div>
+
+            <!-- Screen 5: SETTINGS TAB -->
+            <div id="screenSettings" class="app-screen">
+                <header class="app-header">
+                    <div class="brand-row">
+                        <div class="brand-badge">
+                            <i data-lucide="settings" class="brand-shield-icon"></i>
+                            <span class="brand-text">Settings &amp; Privacy</span>
+                        </div>
+                    </div>
+                    <p class="alerts-subtitle">Circle security &amp; sensor parameters</p>
+                </header>
+
+                <div class="settings-list">
+                    <!-- Location Privacy Switch -->
+                    <div class="settings-card">
+                        <div class="settings-row-between">
+                            <div class="settings-row">
+                                <div class="settings-icon"><i data-lucide="map-pin"></i></div>
+                                <div class="settings-details">
+                                    <strong>Share Live Location</strong>
+                                    <span id="privacyStatusLabel">Visible to Walker Family Circle</span>
+                                </div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleLocationSharing" checked onchange="app.toggleLocationPrivacy(this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Security PIN -->
+                    <div class="settings-card">
+                        <div class="settings-row">
+                            <div class="settings-icon"><i data-lucide="key-round"></i></div>
+                            <div class="settings-details">
+                                <strong>Emergency PIN</strong>
+                                <span>Server-side verification (Default: 1234)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Store -->
+                    <div class="settings-card">
+                        <div class="settings-row">
+                            <div class="settings-icon"><i data-lucide="database"></i></div>
+                            <div class="settings-details">
+                                <strong>Durable SQLite Database</strong>
+                                <span>familysafety.db (Persistent Storage)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shake Sensor Tuning -->
+                    <div class="settings-card">
+                        <div class="settings-row">
+                            <div class="settings-icon"><i data-lucide="shield-alert"></i></div>
+                            <div class="settings-details">
+                                <strong>Shake-to-SOS Detection</strong>
+                                <span>Tuned Threshold: 22.0 m/s² (3 spikes)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation Bar (Sticky with 4 Tabs) -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" data-tab="home" onclick="app.switchTab('home')">
+                    <i data-lucide="home"></i>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" data-tab="map" onclick="app.switchTab('map')">
+                    <i data-lucide="map-pin"></i>
+                    <span>Map</span>
+                </button>
+                <button class="nav-item" data-tab="alerts" onclick="app.switchTab('alerts')">
+                    <i data-lucide="bell"></i>
+                    <span>Alerts</span>
+                </button>
+                <button class="nav-item" data-tab="settings" onclick="app.switchTab('settings')">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+
+        </div>
+    </div>
+
+    <!-- PIN Entry Security Modal -->
+    <div id="pinModal" class="pin-modal-backdrop hidden">
+        <div class="pin-card">
+            <div class="pin-header">
+                <h3>Enter Safety PIN</h3>
+                <button class="close-pin" onclick="app.closePinModal()">&times;</button>
+            </div>
+            <p class="pin-sub">Enter your 4-digit security PIN to cancel the SOS distress beacon.</p>
+            
+            <div class="pin-dots-row">
+                <span class="pin-dot" id="pDot1"></span>
+                <span class="pin-dot" id="pDot2"></span>
+                <span class="pin-dot" id="pDot3"></span>
+                <span class="pin-dot" id="pDot4"></span>
+            </div>
+
+            <!-- Keypad -->
+            <div class="keypad-grid">
+                <button class="btn-num" onclick="app.appendPin('1')">1</button>
+                <button class="btn-num" onclick="app.appendPin('2')">2</button>
+                <button class="btn-num" onclick="app.appendPin('3')">3</button>
+                <button class="btn-num" onclick="app.appendPin('4')">4</button>
+                <button class="btn-num" onclick="app.appendPin('5')">5</button>
+                <button class="btn-num" onclick="app.appendPin('6')">6</button>
+                <button class="btn-num" onclick="app.appendPin('7')">7</button>
+                <button class="btn-num" onclick="app.appendPin('8')">8</button>
+                <button class="btn-num" onclick="app.appendPin('9')">9</button>
+                <button class="btn-num" onclick="app.clearPin()">C</button>
+                <button class="btn-num" onclick="app.appendPin('0')">0</button>
+                <button class="btn-num" onclick="app.submitPin()">✓</button>
+            </div>
+            <p class="pin-hint">Demo PIN: <strong>1234</strong></p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS (Free OpenStreetMap Tiles - NO API KEY REQUIRED) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
