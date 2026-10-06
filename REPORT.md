@@ -17,15 +17,6 @@ The **AegisSafe Family Safety System** has been engineered into an **industrial-
 | **Frontend Command Center** | `http://localhost:3000` | 🟢 **RUNNING** | Dark Mode Live Map, Strobe SOS HUD, Web Audio Siren, Geofence Editor |
 | **Native Android Client** | Gradle Module (`:app`) | 📦 **CONFIGURED** | Android 14/15 Ready, Foreground Service, Accelerometer Sensor, SMS Fallback |
 
----
-
-### 1.1 System Visuals & Screenshots
-
-#### A. Web Command Center & Live Telemetry Map
-![AegisSafe Web Command Center](docs/screenshots/command_center_dashboard.jpg)
-
-#### B. Native Android Mobile App & SOS Protocol
-![AegisSafe Mobile App Interface](docs/screenshots/mobile_app_interface.jpg)
 
 ---
 

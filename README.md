@@ -4,11 +4,9 @@
 
 ---
 
-## 📸 System Screenshots & UI Walkthrough
+## 📸 System Overview & UI Walkthrough
 
 ### 1. Web Command Center & Live Geospatial Map (`http://localhost:3000`)
-![AegisSafe Web Command Center](docs/screenshots/command_center_dashboard.jpg)
-
 * **Real-time Map & Telemetry**: Live member pins in Colombo with battery status, current movement velocity, and safe zone perimeter indicators.
 * **Instant Incident Log & Audits**: Real-time websocket stream capturing distress beacons, safe zone transitions, and charging events.
 * **Emergency Remote Controls**: Guardian-triggered high-decibel siren and live video verification dispatch.
@@ -16,8 +14,6 @@
 ---
 
 ### 2. Native Android Mobile Client & SOS Protocol (`:app`)
-![AegisSafe Mobile App Interface](docs/screenshots/mobile_app_interface.jpg)
-
 * **Instant SOS Panic Trigger**: Large haptic-feedback emergency activator with hardware Shake-to-SOS sensor monitoring.
 * **5-Second Countdown HUD**: Fail-safe cancelation window preventing accidental alerts, accompanied by continuous strobe haptics.
 * **Dual Emergency Dispatch**: Concurrent WebSockets cloud transmission and zero-data GSM SMS broadcast with direct Google Maps coordinates.
