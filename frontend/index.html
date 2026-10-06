@@ -268,7 +268,7 @@
                                 <div class="settings-icon"><i data-lucide="map-pin"></i></div>
                                 <div class="settings-details">
                                     <strong>Share Live Location</strong>
-                                    <span id="privacyStatusLabel">Visible to Walker Family Circle</span>
+                                    <span id="privacyStatusLabel">Visible to Family Circle</span>
                                 </div>
                             </div>
                             <label class="toggle-switch">
@@ -284,7 +284,7 @@
                             <div class="settings-icon"><i data-lucide="key-round"></i></div>
                             <div class="settings-details">
                                 <strong>Emergency PIN</strong>
-                                <span>Server-side verification (Default: 1234)</span>
+                                <span>Configured via environment variable (DEFAULT_SECURITY_PIN)</span>
                             </div>
                         </div>
                     </div>
@@ -295,7 +295,7 @@
                             <div class="settings-icon"><i data-lucide="database"></i></div>
                             <div class="settings-details">
                                 <strong>Durable SQLite Database</strong>
-                                <span>familysafety.db (Persistent Storage)</span>
+                                <span>Protected by .gitignore (Local Storage)</span>
                             </div>
                         </div>
                     </div>
@@ -367,7 +367,7 @@
                 <button class="btn-num" onclick="app.appendPin('0')">0</button>
                 <button class="btn-num" onclick="app.submitPin()">✓</button>
             </div>
-            <p class="pin-hint">Demo PIN: <strong>1234</strong></p>
+            <p class="pin-hint">Enter your configured emergency PIN</p>
         </div>
     </div>
 

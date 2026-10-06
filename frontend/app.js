@@ -7,7 +7,7 @@ class MobileSafetyApp {
     constructor() {
         this.apiBase = "http://localhost:8000";
         this.wsUrl = "ws://localhost:8000/ws/telemetry";
-        this.circleId = "FAM-9021";
+        this.circleId = "CIRCLE-001";
 
         this.members = {};
         this.geofences = [];
@@ -94,8 +94,8 @@ class MobileSafetyApp {
         });
 
         document.getElementById('btnSheetCall')?.addEventListener('click', () => {
-            const target = this.selectedMapMember || this.members['usr_grandpa'] || { phone: '+94705550192', name: 'Grandpa Joe' };
-            window.location.href = `tel:${target.phone || '+94705550192'}`;
+            const target = this.selectedMapMember || this.members['usr_grandpa'] || { phone: '+15550103', name: 'Sam (Senior)' };
+            window.location.href = `tel:${target.phone || '+15550103'}`;
         });
 
         document.getElementById('btnSheetDirections')?.addEventListener('click', () => {
@@ -157,12 +157,13 @@ class MobileSafetyApp {
     }
 
     handleDirectionsAction() {
-        const target = this.selectedMapMember || this.members['usr_grandpa'] || { location: { lat: 6.8950, lng: 79.8560 }, name: 'Grandpa Joe' };
-        const destLat = target.location?.lat || 6.8950;
-        const destLng = target.location?.lng || 79.8560;
+        const target = this.selectedMapMember || this.members['usr_grandpa'] || { location: { lat: 37.7690, lng: -122.4467 }, name: 'Sam (Senior)' };
+        const destLat = target.location?.lat || 37.7690;
+        const destLng = target.location?.lng || -122.4467;
 
         // 1. Draw animated Route Polyline on Map
-        this.drawRouteOnMap([6.9360, 79.8450], [destLat, destLng], target.name);
+        const startPoint = this.members['usr_sarah']?.location ? [this.members['usr_sarah'].location.lat, this.members['usr_sarah'].location.lng] : [37.7749, -122.4194];
+        this.drawRouteOnMap(startPoint, [destLat, destLng], target.name);
 
         // 2. Open Real GPS Turn-by-Turn in Google Maps
         const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=driving`;
@@ -176,11 +177,11 @@ class MobileSafetyApp {
             this.fullMap.removeLayer(this.currentRouteLayer);
         }
 
+        const midLat = (startLatLng[0] + endLatLng[0]) / 2;
+        const midLng = (startLatLng[1] + endLatLng[1]) / 2;
         const routePoints = [
             startLatLng,
-            [6.9271, 79.8480], // Galle Face
-            [6.9150, 79.8510], // Kollupitiya
-            [6.9050, 79.8540], // Bambalapitiya North
+            [midLat, midLng],
             endLatLng
         ];
 
@@ -258,13 +259,13 @@ class MobileSafetyApp {
     }
 
     initMaps() {
-        const colomboCenter = [6.9271, 79.8612];
+        const defaultCenter = [37.7749, -122.4194];
 
         // 1. Mini Map on Home Tab
         const miniEl = document.getElementById('miniMap');
         if (miniEl) {
             this.miniMap = L.map('miniMap', {
-                center: colomboCenter,
+                center: defaultCenter,
                 zoom: 12,
                 zoomControl: false,
                 attributionControl: false,
@@ -285,7 +286,7 @@ class MobileSafetyApp {
         const fullEl = document.getElementById('fullMap');
         if (fullEl) {
             this.fullMap = L.map('fullMap', {
-                center: colomboCenter,
+                center: defaultCenter,
                 zoom: 13,
                 zoomControl: false,
                 attributionControl: false
@@ -433,8 +434,8 @@ class MobileSafetyApp {
         list.innerHTML = '';
 
         const contacts = [
-            this.members['usr_sarah'] || { name: 'Sarah', role: 'Guardian', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', phone: '+94 77 123 4567' },
-            this.members['usr_leo'] || { name: 'Leo', role: 'Family', avatar_url: 'https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=150', phone: '+94 71 987 6543' }
+            this.members['usr_sarah'] || { name: 'Alex (Guardian)', role: 'Guardian', avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150', phone: '+1 555-0101' },
+            this.members['usr_leo'] || { name: 'Jordan (Member)', role: 'Family', avatar_url: 'https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=150', phone: '+1 555-0102' }
         ];
 
         contacts.forEach(c => {
@@ -507,7 +508,7 @@ class MobileSafetyApp {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user_id: 'usr_sarah',
-                    location_name: 'Colombo Fort, Sri Lanka'
+                    location_name: 'Downtown Safe Zone'
                 })
             });
             if (res.ok) {
@@ -518,7 +519,7 @@ class MobileSafetyApp {
                 }
                 if (deliveryCard) {
                     deliveryCard.classList.remove('hidden');
-                    document.getElementById('sosDeliverySubtitle').innerText = data.alert?.delivery_status || 'Delivered to 3 family members via Cloud & SMS';
+                    document.getElementById('sosDeliverySubtitle').innerText = data.alert?.delivery_status || 'Delivered to family members via Cloud & SMS';
                 }
                 this.updateAlertBadge();
             }
@@ -566,14 +567,21 @@ class MobileSafetyApp {
         if (this.enteredPin.length !== 4) return;
 
         try {
+            const activeSosId = this.activeSos.length > 0 ? this.activeSos[0].id : '';
+            if (!activeSosId) {
+                this.closePinModal();
+                alert("No active SOS beacon found.");
+                return;
+            }
+
             const res = await fetch(`${this.apiBase}/api/sos/cancel`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sos_id: this.activeSos.length > 0 ? this.activeSos[0].id : 'SOS-1791244498',
+                    sos_id: activeSosId,
                     user_id: 'usr_sarah',
                     pin: this.enteredPin,
-                    resolution_notes: 'Verified safe by guardian on mobile app.'
+                    resolution_notes: 'Verified safe by user on mobile app.'
                 })
             });
 
@@ -600,7 +608,7 @@ class MobileSafetyApp {
     toggleLocationPrivacy(isEnabled) {
         const label = document.getElementById('privacyStatusLabel');
         if (label) {
-            label.innerText = isEnabled ? "Visible to Walker Family Circle" : "Location sharing PAUSED (Private)";
+            label.innerText = isEnabled ? "Visible to Family Circle" : "Location sharing PAUSED (Private)";
             label.style.color = isEnabled ? "#64748B" : "#EF4444";
         }
     }

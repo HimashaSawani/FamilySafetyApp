@@ -11,7 +11,7 @@ from datetime import datetime
 import json
 import uuid
 
-from database import init_db, SessionLocal, User, Circle, Geofence, SOSAlert, AuditLog
+from database import init_db, SessionLocal, User, Circle, Geofence, SOSAlert, AuditLog, DEFAULT_CIRCLE_ID
 
 init_db()
 
@@ -60,7 +60,7 @@ class JoinCirclePayload(BaseModel):
 
 class CheckInPayload(BaseModel):
     user_id: str
-    location_name: str = "Colombo, Sri Lanka"
+    location_name: str = "Demo Metro Area"
     custom_message: Optional[str] = "I'm safe and sound!"
 
 class JourneyStartPayload(BaseModel):
@@ -88,13 +88,13 @@ class LocationUpdatePayload(BaseModel):
     speed: float = 0.0
     battery: int = 100
     is_charging: bool = False
-    location_name: Optional[str] = "Colombo, Sri Lanka"
+    location_name: Optional[str] = "Demo Metro Area"
 
 class SOSTriggerPayload(BaseModel):
     user_id: str
     lat: Optional[float] = None
     lng: Optional[float] = None
-    location_name: Optional[str] = "Colombo, Sri Lanka"
+    location_name: Optional[str] = "Demo Metro Area"
     reason: str = "MANUAL_PANIC_BUTTON"
 
 class SOSCancelPayload(BaseModel):
@@ -503,7 +503,7 @@ async def cancel_sos(payload: SOSCancelPayload):
         db.close()
         raise HTTPException(status_code=404, detail="User not found")
 
-    if payload.pin != canceling_user.security_pin and payload.pin != "1234":
+    if payload.pin != canceling_user.security_pin:
         db.close()
         raise HTTPException(status_code=403, detail="Invalid Security PIN. Cancellation Rejected.")
 
@@ -535,7 +535,7 @@ async def cancel_sos(payload: SOSCancelPayload):
     return {"status": "RESOLVED", "sos_id": payload.sos_id, "resolved_by": user_name}
 
 @app.websocket("/ws/telemetry")
-async def websocket_endpoint(websocket: WebSocket, circle_id: Optional[str] = "FAM-9021"):
+async def websocket_endpoint(websocket: WebSocket, circle_id: Optional[str] = DEFAULT_CIRCLE_ID):
     await ws_manager.connect(websocket, circle_id)
     try:
         await websocket.send_text(json.dumps({
