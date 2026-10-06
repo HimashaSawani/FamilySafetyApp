@@ -19,6 +19,16 @@ The **AegisSafe Family Safety System** has been engineered into an **industrial-
 
 ---
 
+### 1.1 System Visuals & Screenshots
+
+#### A. Web Command Center & Live Telemetry Map
+![AegisSafe Web Command Center](docs/screenshots/command_center_dashboard.jpg)
+
+#### B. Native Android Mobile App & SOS Protocol
+![AegisSafe Mobile App Interface](docs/screenshots/mobile_app_interface.jpg)
+
+---
+
 ### 2. Architecture & Data Flow
 
 ```mermaid
